@@ -1,3 +1,4 @@
+#include <../src/symmetric_encryption.h>
 #include <grypt/encryption.h>
 #include <gtest/gtest.h>
 
@@ -8,4 +9,6 @@ TEST(basic, basicTest)
    Encryption e{"abc"};
    EXPECT_TRUE(e.encrypt("cde").has_value());
    EXPECT_TRUE(e.decrypt("ghi").has_value());
+
+   f();
 }
