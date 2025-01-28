@@ -1,4 +1,4 @@
-#include <encryption.h>
+#include <grypt/encryption.h>
 
 namespace grypt
 {
