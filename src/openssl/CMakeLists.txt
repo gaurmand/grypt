@@ -1,7 +1,10 @@
 ADD_LIBRARY( 
    "gryptssl" STATIC
-   symmetric_encryption_ssl.cpp 
+   osslutil.cpp
+   algorithm_ossl.cpp
+   randombytes_ossl.cpp
+   symmetrickeycipher_ossl.cpp
 )
 
-target_link_libraries(gryptssl ssl crypto)
-target_link_libraries(grypt gryptssl)
+target_link_libraries(gryptssl ssl crypto gryptutil)
+target_link_libraries(grypt INTERFACE gryptssl)
