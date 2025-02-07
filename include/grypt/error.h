@@ -9,10 +9,8 @@ namespace grypt
 
 enum class ErrorCode
 {
-   FetchCipherFailed,
-   FetchCipherParamsFailed,
-   CreateCipherContextFailed,
-   ResetCipherContextFailed,
+   InitializeCipherFailed,
+   FetchCipherDataFailed,
    InvalidKeyLength,
    InvalidIVLength,
    RandomBytesFailure,
@@ -20,8 +18,12 @@ enum class ErrorCode
    DecryptionFailure,
    EncryptUpdateNotAllowed,
    DecryptUpdateNotAllowed,
+   EncryptAADNotAllowed,
+   DecryptAADNotAllowed,
    EncryptFinalNotAllowed,
-   DecryptFinalNotAllowed
+   DecryptFinalNotAllowed,
+   EncryptTagNotAllowed,
+   DecryptTagNotAllowed
 };
 
 std::error_code make_error_code(ErrorCode);

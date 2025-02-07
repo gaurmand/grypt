@@ -1,7 +1,8 @@
 add_executable(
    encryption_test
    algorithm_test.cpp
-   symmetric_encryption_test.cpp
+   symmetriccipher_test.cpp
+   authsymmetriccipher_test.cpp
 )
 
 add_executable(

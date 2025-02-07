@@ -3,6 +3,7 @@
 
 #include <expected>
 #include <grypt/algorithm.h>
+#include <grypt/bytes.h>
 #include <grypt/error.h>
 #include <iostream>
 #include <memory>
@@ -43,11 +44,11 @@ std::expected<evp_cipher_ptr, Error> getCipher(SymmetricCipherAlgorithm alg);
 std::expected<evp_cipher_ptr, Error> getCipher(
    AuthSymmetricCipherAlgorithm alg);
 
-std::expected<evp_cipher_ctx_ptr, Error> makeCipherContext();
+std::expected<evp_cipher_ctx_ptr, Error> makeCipherContext(
+   const evp_cipher_ptr& cipher);
 std::expected<void, Error> resetCipherContext(evp_cipher_ctx_ptr& ctx);
 
 std::expected<AlgorithmInfo, Error> getInfo(const evp_cipher_ptr& cipher);
-
 std::string handleError();
 
 } // namespace grypt::ossl
