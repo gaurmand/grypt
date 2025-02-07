@@ -2,7 +2,7 @@
 
 #include <grypt/algorithm.h>
 #include <grypt/randombytes.h>
-#include <grypt/symmetrickeycipher.h>
+#include <grypt/symmetriccipher.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <optional>
@@ -12,25 +12,11 @@
 using namespace grypt;
 using namespace grypt::literals;
 
-namespace
-{
-const auto kTestKey = Bytes::fromHex(
-   "0x6d448552e4d9aeb6ee76785cad9a143f978dcc423e8e1f92201776e6fa5d6b5a7af825bdf"
-   "d6fc768153101325fafff8e8a75117bfe936e2313651755efaeeb97");
-
-const auto kTestIV1 = Bytes::fromHex("0x306ed3c7f141f8df95836e2875663e82");
-const auto kTestIV2 = Bytes::fromHex("0x7121a4f474186c1e5355fc1d3c24e380");
-
-const auto kTestPlaintext     = "Sphinx of black quartz, judge my vow"_bv;
-const auto kTestWrapPlaintext = "This string is a multiple of 8!?"_bv;
-
-} // namespace
-
 testing::AssertionResult roundTrip(
    SymmetricCipherAlgorithm alg,
    std::optional<BytesView> plaintext = std::nullopt)
 {
-   auto cipher = SymmetricKeyCipher::create(kTestKey, alg);
+   auto cipher = SymmetricCipher::create(kTestKey, alg);
    if (!cipher.has_value())
    {
       return testing::AssertionFailure() << "cipher creation failed";
@@ -91,10 +77,10 @@ TEST(symmetricKeyCipher, roundTrip)
    EXPECT_TRUE(roundTrip(SymmetricCipherAlgorithm::AES_256_WRAP_PAD_INV));
 }
 
-TEST(symmetricKeyCipher, multipleEncryptDecrpytWithSameCipher)
+TEST(symmetricKeyCipher, multipleOperationsWithSameCipher)
 {
-   auto c = SymmetricKeyCipher::create(kTestKey,
-                                       SymmetricCipherAlgorithm::AES_256_OFB);
+   auto c =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_256_OFB);
    ASSERT_TRUE(c.has_value());
 
    auto enc1 = c->encrypt(kTestPlaintext, kTestIV1);
@@ -117,21 +103,21 @@ TEST(symmetricKeyCipher, multipleEncryptDecrpytWithSameCipher)
 
 TEST(symmetricKeyCipher, invalidKeyLength)
 {
-   auto c1 = SymmetricKeyCipher::create(Bytes(16),
-                                        SymmetricCipherAlgorithm::AES_256_CBC);
+   auto c1 =
+      SymmetricCipher::create(Bytes(16), SymmetricCipherAlgorithm::AES_256_CBC);
    ASSERT_FALSE(c1.has_value());
    ASSERT_EQ(c1.error(), ErrorCode::InvalidKeyLength);
 
-   auto c2 = SymmetricKeyCipher::create(Bytes(16),
-                                        SymmetricCipherAlgorithm::AES_128_XTS);
+   auto c2 =
+      SymmetricCipher::create(Bytes(16), SymmetricCipherAlgorithm::AES_128_XTS);
    ASSERT_FALSE(c2.has_value());
    ASSERT_EQ(c2.error(), ErrorCode::InvalidKeyLength);
 }
 
 TEST(symmetricKeyCipher, invalidIVLength)
 {
-   auto c1 = SymmetricKeyCipher::create(kTestKey,
-                                        SymmetricCipherAlgorithm::AES_256_CBC);
+   auto c1 =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_256_CBC);
    ASSERT_TRUE(c1.has_value());
 
    auto enc1 = c1->encrypt(kTestPlaintext, Bytes(8));
@@ -142,7 +128,7 @@ TEST(symmetricKeyCipher, invalidIVLength)
    ASSERT_FALSE(dec1.has_value());
    ASSERT_EQ(dec1.error(), ErrorCode::InvalidIVLength);
 
-   auto c2 = SymmetricKeyCipher::create(
+   auto c2 = SymmetricCipher::create(
       kTestKey, SymmetricCipherAlgorithm::AES_192_WRAP_PAD);
    ASSERT_TRUE(c2.has_value());
 
@@ -158,8 +144,8 @@ TEST(symmetricKeyCipher, invalidIVLength)
 TEST(symmetricKeyCipher, ECBMode)
 {
    // ECB doesn't use an IV, thus it produces the same output regardless of IV.
-   auto c = SymmetricKeyCipher::create(kTestKey,
-                                       SymmetricCipherAlgorithm::AES_128_ECB);
+   auto c =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_128_ECB);
    ASSERT_TRUE(c.has_value());
 
    auto enc1 = c->encrypt(kTestPlaintext, Bytes());
@@ -175,8 +161,8 @@ TEST(symmetricKeyCipher, wrapModeInputSize)
 {
    // Key wrap modes without padding require the input to be greater than 16 and
    // a multiple of 8.
-   auto c1 = SymmetricKeyCipher::create(kTestKey,
-                                        SymmetricCipherAlgorithm::AES_128_WRAP);
+   auto c1 =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_128_WRAP);
    ASSERT_TRUE(c1.has_value());
 
    auto enc1 = c1->encrypt(Bytes(15), kTestIV1);
@@ -184,7 +170,7 @@ TEST(symmetricKeyCipher, wrapModeInputSize)
    auto enc2 = c1->encrypt(Bytes(16), kTestIV1);
    ASSERT_TRUE(enc2.has_value());
 
-   auto c2 = SymmetricKeyCipher::create(
+   auto c2 = SymmetricCipher::create(
       kTestKey, SymmetricCipherAlgorithm::AES_192_WRAP_INV);
    ASSERT_TRUE(c2.has_value());
 
@@ -200,7 +186,7 @@ TEST(symmetricKeyCipher, wrapModeAuthentication)
    // ciphertext was modified. Unlike other authenticated ciphers, key wrap
    // ciphers do not produce authentication tags or allow additional data to be
    // authenticated.
-   auto c1 = SymmetricKeyCipher::create(
+   auto c1 = SymmetricCipher::create(
       kTestKey, SymmetricCipherAlgorithm::AES_256_WRAP_PAD);
    ASSERT_TRUE(c1.has_value());
 
@@ -215,29 +201,10 @@ TEST(symmetricKeyCipher, wrapModeAuthentication)
    ASSERT_FALSE(dec2.has_value());
 }
 
-TEST(symmetricKeyCipher, otherModesNoAuthentication)
+TEST(symmetricKeyCipher, multiStepEncrypt)
 {
-   // Other modes are not authenticated, so modifying ciphertext shouldn't
-   // affect decryption.
-   auto c1 = SymmetricKeyCipher::create(kTestKey,
-                                        SymmetricCipherAlgorithm::AES_256_CTR);
-   ASSERT_TRUE(c1.has_value());
-
-   auto enc1 = c1->encrypt(kTestPlaintext, kTestIV1);
-   ASSERT_TRUE(enc1.has_value());
-
-   auto dec1 = c1->decrypt(enc1.value(), kTestIV1);
-   ASSERT_TRUE(dec1.has_value());
-
-   enc1.value()[4] = std::byte{'a'};
-   auto dec2       = c1->decrypt(enc1.value(), kTestIV1);
-   ASSERT_TRUE(dec2.has_value());
-}
-
-TEST(symmetricKeyCipher, lowLeveLMultipleEncryptUpdate)
-{
-   auto c = SymmetricKeyCipher::create(kTestKey,
-                                       SymmetricCipherAlgorithm::AES_128_CBC);
+   auto c =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_128_CBC);
    ASSERT_TRUE(c.has_value());
 
    auto init = c->encryptInit(kTestIV1);
@@ -265,10 +232,10 @@ TEST(symmetricKeyCipher, lowLeveLMultipleEncryptUpdate)
    EXPECT_EQ(enc, encSimple.value());
 }
 
-TEST(symmetricKeyCipher, lowLevelMultipleDecryptUpdate)
+TEST(symmetricKeyCipher, multiStepDecrypt)
 {
-   auto c = SymmetricKeyCipher::create(kTestKey,
-                                       SymmetricCipherAlgorithm::AES_128_CBC);
+   auto c =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_128_CBC);
    ASSERT_TRUE(c.has_value());
 
    auto init = c->decryptInit(kTestIV1);
@@ -300,80 +267,43 @@ TEST(symmetricKeyCipher, lowLevelMultipleDecryptUpdate)
 
 TEST(symmetricKeyCipher, lowLevelOperationsAbuse)
 {
-   auto c = SymmetricKeyCipher::create(kTestKey,
-                                       SymmetricCipherAlgorithm::AES_128_CFB);
+   auto c =
+      SymmetricCipher::create(kTestKey, SymmetricCipherAlgorithm::AES_128_CFB);
    ASSERT_TRUE(c.has_value());
 
-   // Errors from unitialized state
-   auto r1 = c->encryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r1.has_value());
-   EXPECT_EQ(r1.error(), ErrorCode::EncryptUpdateNotAllowed);
-
-   auto r2 = c->encryptFinal();
-   ASSERT_FALSE(r2.has_value());
-   EXPECT_EQ(r2.error(), ErrorCode::EncryptFinalNotAllowed);
-
-   auto r3 = c->decryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r3.has_value());
-   EXPECT_EQ(r3.error(), ErrorCode::DecryptUpdateNotAllowed);
-
-   auto r4 = c->decryptFinal();
-   ASSERT_FALSE(r4.has_value());
-   EXPECT_EQ(r4.error(), ErrorCode::DecryptFinalNotAllowed);
+   // Errors from uninitialized state
+   EXPECT_EQ(c->encryptUpdate({}).error(), ErrorCode::EncryptUpdateNotAllowed);
+   EXPECT_EQ(c->encryptFinal().error(), ErrorCode::EncryptFinalNotAllowed);
+   EXPECT_EQ(c->decryptUpdate({}).error(), ErrorCode::DecryptUpdateNotAllowed);
+   EXPECT_EQ(c->decryptFinal().error(), ErrorCode::DecryptFinalNotAllowed);
 
    // Errors from encryption initialized state
    auto einit = c->encryptInit(kTestIV1);
    ASSERT_TRUE(einit.has_value());
 
-   auto r5 = c->encryptFinal();
-   ASSERT_FALSE(r5.has_value());
-   EXPECT_EQ(r5.error(), ErrorCode::EncryptFinalNotAllowed);
-
-   auto r6 = c->decryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r6.has_value());
-   EXPECT_EQ(r6.error(), ErrorCode::DecryptUpdateNotAllowed);
-
-   auto r7 = c->decryptFinal();
-   ASSERT_FALSE(r7.has_value());
-   EXPECT_EQ(r7.error(), ErrorCode::DecryptFinalNotAllowed);
+   EXPECT_EQ(c->encryptFinal().error(), ErrorCode::EncryptFinalNotAllowed);
+   EXPECT_EQ(c->decryptUpdate({}).error(), ErrorCode::DecryptUpdateNotAllowed);
+   EXPECT_EQ(c->decryptFinal().error(), ErrorCode::DecryptFinalNotAllowed);
 
    // Errors from encryption in progress state
    auto eup = c->encryptUpdate(kTestPlaintext);
    ASSERT_TRUE(eup.has_value());
 
-   auto r8 = c->decryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r8.has_value());
-   EXPECT_EQ(r8.error(), ErrorCode::DecryptUpdateNotAllowed);
-
-   auto r9 = c->decryptFinal();
-   ASSERT_FALSE(r9.has_value());
-   EXPECT_EQ(r9.error(), ErrorCode::DecryptFinalNotAllowed);
+   EXPECT_EQ(c->decryptUpdate({}).error(), ErrorCode::DecryptUpdateNotAllowed);
+   EXPECT_EQ(c->decryptFinal().error(), ErrorCode::DecryptFinalNotAllowed);
 
    // Errors from decryption initialized state
    auto dinit = c->decryptInit(kTestIV1);
    ASSERT_TRUE(dinit.has_value());
 
-   auto r10 = c->decryptFinal();
-   ASSERT_FALSE(r10.has_value());
-   EXPECT_EQ(r10.error(), ErrorCode::DecryptFinalNotAllowed);
-
-   auto r11 = c->encryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r11.has_value());
-   EXPECT_EQ(r11.error(), ErrorCode::EncryptUpdateNotAllowed);
-
-   auto r12 = c->encryptFinal();
-   ASSERT_FALSE(r12.has_value());
-   EXPECT_EQ(r12.error(), ErrorCode::EncryptFinalNotAllowed);
+   EXPECT_EQ(c->decryptFinal().error(), ErrorCode::DecryptFinalNotAllowed);
+   EXPECT_EQ(c->encryptUpdate({}).error(), ErrorCode::EncryptUpdateNotAllowed);
+   EXPECT_EQ(c->encryptFinal().error(), ErrorCode::EncryptFinalNotAllowed);
 
    // Errors from decryption in progress state
    auto dup = c->decryptUpdate(kTestPlaintext);
    ASSERT_TRUE(dup.has_value());
 
-   auto r13 = c->encryptUpdate(kTestPlaintext);
-   ASSERT_FALSE(r13.has_value());
-   EXPECT_EQ(r13.error(), ErrorCode::EncryptUpdateNotAllowed);
-
-   auto r14 = c->encryptFinal();
-   ASSERT_FALSE(r14.has_value());
-   EXPECT_EQ(r14.error(), ErrorCode::EncryptFinalNotAllowed);
+   EXPECT_EQ(c->encryptUpdate({}).error(), ErrorCode::EncryptUpdateNotAllowed);
+   EXPECT_EQ(c->encryptFinal().error(), ErrorCode::EncryptFinalNotAllowed);
 }

@@ -157,7 +157,7 @@ std::expected<evp_cipher_ptr, Error> getCipher(SymmetricCipherAlgorithm alg)
    if (!cipher)
    {
       ossl::handleError();
-      return std::unexpected(ErrorCode::FetchCipherFailed);
+      return std::unexpected(ErrorCode::InitializeCipherFailed);
    }
    return cipher;
 }
@@ -169,18 +169,27 @@ std::expected<evp_cipher_ptr, Error> getCipher(AuthSymmetricCipherAlgorithm alg)
    if (!cipher)
    {
       ossl::handleError();
-      return std::unexpected(ErrorCode::FetchCipherFailed);
+      return std::unexpected(ErrorCode::InitializeCipherFailed);
    }
    return cipher;
 }
 
-std::expected<evp_cipher_ctx_ptr, Error> makeCipherContext()
+std::expected<evp_cipher_ctx_ptr, Error> makeCipherContext(
+   const evp_cipher_ptr& cipher)
 {
    ossl::evp_cipher_ctx_ptr ctx{EVP_CIPHER_CTX_new()};
    if (!ctx)
    {
       ossl::handleError();
-      return std::unexpected{ErrorCode::CreateCipherContextFailed};
+      return std::unexpected{ErrorCode::InitializeCipherFailed};
+   }
+
+   auto res =
+      EVP_EncryptInit_ex2(ctx.get(), cipher.get(), nullptr, nullptr, nullptr);
+   if (res != ERR_LIB_NONE)
+   {
+      ossl::handleError();
+      return std::unexpected{ErrorCode::InitializeCipherFailed};
    }
 
    return ctx;
@@ -192,7 +201,7 @@ std::expected<void, Error> resetCipherContext(evp_cipher_ctx_ptr& ctx)
    if (res != ERR_LIB_NONE)
    {
       ossl::handleError();
-      return std::unexpected{ErrorCode::ResetCipherContextFailed};
+      return std::unexpected{ErrorCode::InitializeCipherFailed};
    }
 
    return {};
@@ -215,7 +224,7 @@ std::expected<AlgorithmInfo, Error> getInfo(const evp_cipher_ptr& cipher)
    if (res != ERR_LIB_NONE)
    {
       ossl::handleError();
-      return std::unexpected(ErrorCode::FetchCipherParamsFailed);
+      return std::unexpected(ErrorCode::FetchCipherDataFailed);
    }
 
    info.mode = toMode(modeNum);
