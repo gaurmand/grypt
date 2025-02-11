@@ -11,6 +11,7 @@ enum class ErrorCode
 {
    InitializeCipherFailed,
    FetchCipherDataFailed,
+   InvalidPlaintextLength,
    InvalidKeyLength,
    InvalidIVLength,
    RandomBytesFailure,
@@ -23,7 +24,10 @@ enum class ErrorCode
    EncryptFinalNotAllowed,
    DecryptFinalNotAllowed,
    EncryptTagNotAllowed,
-   DecryptTagNotAllowed
+   DecryptTagNotAllowed,
+   KeyGenerationFailure,
+   KeyParseFailure,
+   PublicKeyDecryptFailure
 };
 
 std::error_code make_error_code(ErrorCode);

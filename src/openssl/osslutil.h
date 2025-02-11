@@ -7,6 +7,7 @@
 #include <grypt/error.h>
 #include <iostream>
 #include <memory>
+#include <openssl/decoder.h>
 #include <openssl/evp.h>
 
 namespace grypt
@@ -50,6 +51,24 @@ std::expected<void, Error> resetCipherContext(evp_cipher_ctx_ptr& ctx);
 
 std::expected<AlgorithmInfo, Error> getInfo(const evp_cipher_ptr& cipher);
 std::string handleError();
+
+struct evp_pkey_deleter
+{
+   void operator()(EVP_PKEY* obj) { EVP_PKEY_free(obj); }
+};
+using evp_pkey_ptr = std::unique_ptr<EVP_PKEY, evp_pkey_deleter>;
+
+struct evp_pkey_ctx_deleter
+{
+   void operator()(EVP_PKEY_CTX* obj) { EVP_PKEY_CTX_free(obj); }
+};
+using evp_pkey_ctx_ptr = std::unique_ptr<EVP_PKEY_CTX, evp_pkey_ctx_deleter>;
+
+struct decoder_ctx_deleter
+{
+   void operator()(OSSL_DECODER_CTX* obj) { OSSL_DECODER_CTX_free(obj); }
+};
+using decoder_ctx_ptr = std::unique_ptr<OSSL_DECODER_CTX, decoder_ctx_deleter>;
 
 } // namespace grypt::ossl
 
