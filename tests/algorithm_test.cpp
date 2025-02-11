@@ -1,7 +1,6 @@
 #include "testutil.h"
 
 #include <grypt/algorithm.h>
-#include <grypt/symmetrickeycipher.h>
 #include <gtest/gtest.h>
 
 using namespace grypt;

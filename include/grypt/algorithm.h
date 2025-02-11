@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <expected>
 #include <grypt/error.h>
+#include <optional>
 #include <ostream>
 #include <variant>
 

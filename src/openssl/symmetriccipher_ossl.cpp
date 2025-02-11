@@ -3,7 +3,7 @@
 #include <cassert>
 #include <grypt/algorithm.h>
 #include <grypt/randombytes.h>
-#include <grypt/symmetrickeycipher.h>
+#include <grypt/symmetriccipher.h>
 #include <openssl/conf.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -11,7 +11,7 @@
 namespace grypt
 {
 
-struct SymmetricKeyCipher::Data
+struct SymmetricCipher::Data
 {
    enum class State
    {
@@ -22,14 +22,12 @@ struct SymmetricKeyCipher::Data
       DecryptionInProgress
    };
 
-   SymmetricCipherAlgorithm alg;
-   Bytes key;
-   AlgorithmInfo info;
+   const SymmetricCipherAlgorithm alg;
+   const Bytes key;
+   const AlgorithmInfo info;
    ossl::evp_cipher_ptr cipher;
    ossl::evp_cipher_ctx_ptr ctx;
    State state{State::Uninitialized};
-
-   std::expected<void, Error> reset() { return ossl::resetCipherContext(ctx); }
 
    std::expected<void, Error> encryptInit(BytesView iv)
    {
@@ -39,7 +37,7 @@ struct SymmetricKeyCipher::Data
       }
 
       auto res = EVP_EncryptInit_ex2(
-         ctx.get(), cipher.get(), key.udata(), iv.udata(), nullptr);
+         ctx.get(), nullptr, key.udata(), iv.udata(), nullptr);
       if (res != ERR_LIB_NONE)
       {
          ossl::handleError();
@@ -127,7 +125,7 @@ struct SymmetricKeyCipher::Data
       }
 
       auto res = EVP_DecryptInit_ex2(
-         ctx.get(), cipher.get(), key.udata(), iv.udata(), nullptr);
+         ctx.get(), nullptr, key.udata(), iv.udata(), nullptr);
       if (res != ERR_LIB_NONE)
       {
          ossl::handleError();
@@ -205,7 +203,7 @@ struct SymmetricKeyCipher::Data
    }
 };
 
-std::expected<SymmetricKeyCipher, Error> SymmetricKeyCipher::create(
+std::expected<SymmetricCipher, Error> SymmetricCipher::create(
    Bytes key, SymmetricCipherAlgorithm alg)
 {
    auto cipher = ossl::getCipher(alg);
@@ -225,13 +223,13 @@ std::expected<SymmetricKeyCipher, Error> SymmetricKeyCipher::create(
       return std::unexpected{ErrorCode::InvalidKeyLength};
    }
 
-   auto ctx = ossl::makeCipherContext();
+   auto ctx = ossl::makeCipherContext(cipher.value());
    if (!ctx.has_value())
    {
       return std::unexpected(ctx.error());
    }
 
-   SymmetricKeyCipher res;
+   SymmetricCipher res;
    res.d_ = std::make_unique<Data>(alg,
                                    std::move(key),
                                    std::move(info.value()),
@@ -240,26 +238,19 @@ std::expected<SymmetricKeyCipher, Error> SymmetricKeyCipher::create(
    return res;
 }
 
-SymmetricKeyCipher::SymmetricKeyCipher() = default;
+SymmetricCipher::~SymmetricCipher() = default;
 
-SymmetricKeyCipher::~SymmetricKeyCipher() = default;
-
-SymmetricCipherAlgorithm SymmetricKeyCipher::getAlgorithm() const
+SymmetricCipherAlgorithm SymmetricCipher::getAlgorithm() const
 {
    return d_->alg;
 }
-AlgorithmInfo SymmetricKeyCipher::getAlgorithmInfo() const
+AlgorithmInfo SymmetricCipher::getAlgorithmInfo() const
 {
    return d_->info;
 }
 
-std::expected<void, Error> SymmetricKeyCipher::reset()
-{
-   return d_->reset();
-}
-
-std::expected<Bytes, Error> SymmetricKeyCipher::encrypt(BytesView plaintext,
-                                                        BytesView iv)
+std::expected<Bytes, Error> SymmetricCipher::encrypt(BytesView plaintext,
+                                                     BytesView iv)
 {
    if (auto res = d_->encryptInit(iv); !res.has_value())
    {
@@ -283,8 +274,8 @@ std::expected<Bytes, Error> SymmetricKeyCipher::encrypt(BytesView plaintext,
    return ciphertext;
 }
 
-std::expected<Bytes, Error> SymmetricKeyCipher::decrypt(BytesView ciphertext,
-                                                        BytesView iv)
+std::expected<Bytes, Error> SymmetricCipher::decrypt(BytesView ciphertext,
+                                                     BytesView iv)
 {
    if (auto res = d_->decryptInit(iv); !res.has_value())
    {
@@ -309,34 +300,32 @@ std::expected<Bytes, Error> SymmetricKeyCipher::decrypt(BytesView ciphertext,
    return plaintext;
 }
 
-std::expected<void, Error> SymmetricKeyCipher::encryptInit(BytesView iv)
+std::expected<void, Error> SymmetricCipher::encryptInit(BytesView iv)
 {
    return d_->encryptInit(iv);
 }
 
-std::expected<Bytes, Error> SymmetricKeyCipher::encryptUpdate(
-   BytesView plaintext)
+std::expected<Bytes, Error> SymmetricCipher::encryptUpdate(BytesView plaintext)
 {
    return d_->encryptUpdate(plaintext);
 }
 
-std::expected<Bytes, Error> SymmetricKeyCipher::encryptFinal()
+std::expected<Bytes, Error> SymmetricCipher::encryptFinal()
 {
    return d_->encryptFinal();
 }
 
-std::expected<void, Error> SymmetricKeyCipher::decryptInit(BytesView iv)
+std::expected<void, Error> SymmetricCipher::decryptInit(BytesView iv)
 {
    return d_->decryptInit(iv);
 }
 
-std::expected<Bytes, Error> SymmetricKeyCipher::decryptUpdate(
-   BytesView ciphertext)
+std::expected<Bytes, Error> SymmetricCipher::decryptUpdate(BytesView ciphertext)
 {
    return d_->decryptUpdate(ciphertext);
 }
 
-std::expected<Bytes, Error> SymmetricKeyCipher::decryptFinal()
+std::expected<Bytes, Error> SymmetricCipher::decryptFinal()
 {
    return d_->decryptFinal();
 }
