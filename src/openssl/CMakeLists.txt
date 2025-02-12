@@ -5,6 +5,7 @@ ADD_LIBRARY(
    randombytes_ossl.cpp
    symmetriccipher_ossl.cpp
    authsymmetriccipher_ossl.cpp
+   asymmetriccipher_ossl.cpp
 )
 
 target_link_libraries(gryptssl ssl crypto gryptutil)

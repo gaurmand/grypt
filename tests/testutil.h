@@ -2,6 +2,7 @@
 #define GRYPT_TEST_UTIL_H
 
 #include <grypt/algorithm.h>
+#include <grypt/asymmetriccipher.h>
 #include <grypt/bytes.h>
 
 namespace grypt
@@ -38,6 +39,13 @@ inline void PrintTo(const AlgorithmInfo& info, std::ostream* os)
 {
    *os << "{" << info.keyLength << ", " << info.ivLength << ", "
        << info.blockSize << ", " << static_cast<int>(info.mode) << "}";
+}
+
+inline void PrintTo(const AsymmetricCipher::AlgorithmInfo& info,
+                    std::ostream* os)
+{
+   *os << "{" << info.keyLength << ", " << info.maxPlaintextLength << ", "
+       << std::boolalpha << info.isPrivateKey << "}";
 }
 
 } // namespace grypt

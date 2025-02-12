@@ -3,6 +3,7 @@ add_executable(
    algorithm_test.cpp
    symmetriccipher_test.cpp
    authsymmetriccipher_test.cpp
+   asymmetriccipher_test.cpp
 )
 
 add_executable(
@@ -27,5 +28,12 @@ target_link_libraries(
 target_include_directories(encryption_test PRIVATE "../src/")
 target_include_directories(util_test PRIVATE "../src/")
 
-gtest_discover_tests(encryption_test)
-gtest_discover_tests(util_test)
+gtest_discover_tests(
+   encryption_test
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+gtest_discover_tests(
+   util_test
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
