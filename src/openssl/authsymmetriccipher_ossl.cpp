@@ -14,8 +14,16 @@ namespace grypt
 namespace
 {
 
-std::expected<size_t, Error> getTagLength(const ossl::evp_cipher_ctx_ptr& ctx)
+std::expected<size_t, Error> getTagLength(AuthSymmetricCipherAlgorithm alg,
+                                          const ossl::evp_cipher_ctx_ptr& ctx)
 {
+   // For some reason the taglen parameter for CHACHA20_POLY1305 is set to 0,
+   // hardcode the proper value here as a workaround.
+   if (alg == AuthSymmetricCipherAlgorithm::CHACHA20_POLY1305)
+   {
+      return EVP_CHACHAPOLY_TLS_TAG_LEN;
+   }
+
    size_t taglen{0};
    std::array<OSSL_PARAM, 2> params = {
       OSSL_PARAM_construct_size_t(OSSL_CIPHER_PARAM_AEAD_TAGLEN, &taglen),
@@ -363,7 +371,7 @@ std::expected<AuthSymmetricCipher, Error> AuthSymmetricCipher::create(
       return std::unexpected(ctx.error());
    }
 
-   auto tagLength = getTagLength(ctx.value());
+   auto tagLength = getTagLength(alg, ctx.value());
    if (!tagLength)
    {
       return std::unexpected(tagLength.error());
