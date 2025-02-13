@@ -96,6 +96,8 @@ TEST(authsymmetricKeyCipher, roundTrip)
    EXPECT_TRUE(roundTrip(AuthSymmetricCipherAlgorithm::AES_256_OCB));
    EXPECT_TRUE(roundTrip(AuthSymmetricCipherAlgorithm::AES_256_CCM));
    EXPECT_TRUE(roundTrip(AuthSymmetricCipherAlgorithm::AES_256_SIV));
+
+   EXPECT_TRUE(roundTrip(AuthSymmetricCipherAlgorithm::CHACHA20_POLY1305));
 }
 
 TEST(authsymmetricKeyCipher, authFailure)
@@ -126,6 +128,11 @@ TEST(authsymmetricKeyCipher, authFailure)
    EXPECT_TRUE(authFailure(AuthSymmetricCipherAlgorithm::AES_256_OCB, true));
    EXPECT_TRUE(authFailure(AuthSymmetricCipherAlgorithm::AES_256_CCM, true));
    EXPECT_TRUE(authFailure(AuthSymmetricCipherAlgorithm::AES_256_SIV, true));
+
+   EXPECT_TRUE(
+      authFailure(AuthSymmetricCipherAlgorithm::CHACHA20_POLY1305, false));
+   EXPECT_TRUE(
+      authFailure(AuthSymmetricCipherAlgorithm::CHACHA20_POLY1305, true));
 }
 
 TEST(authsymmetricKeyCipher, multipleOperationsWithSameCipher)

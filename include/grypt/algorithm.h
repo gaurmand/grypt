@@ -58,8 +58,7 @@ enum class SymmetricCipherAlgorithm
    AES_256_WRAP_INV,
    AES_256_WRAP_PAD_INV,
 
-   CHACHA20,
-   CHACHA20_POLY1305,
+   CHACHA20
 };
 
 enum class AuthSymmetricCipherAlgorithm
@@ -80,7 +79,9 @@ enum class AuthSymmetricCipherAlgorithm
    AES_256_GCM,
    AES_256_GCM_SIV,
    AES_256_OCB,
-   AES_256_SIV
+   AES_256_SIV,
+
+   CHACHA20_POLY1305
 };
 
 using Algorithm = std::variant<NullAlgorithm,

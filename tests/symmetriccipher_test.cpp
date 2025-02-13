@@ -75,6 +75,8 @@ TEST(symmetricKeyCipher, roundTrip)
    EXPECT_TRUE(roundTrip(SymmetricCipherAlgorithm::AES_256_XTS));
    EXPECT_TRUE(roundTrip(SymmetricCipherAlgorithm::AES_256_WRAP_PAD));
    EXPECT_TRUE(roundTrip(SymmetricCipherAlgorithm::AES_256_WRAP_PAD_INV));
+
+   EXPECT_TRUE(roundTrip(SymmetricCipherAlgorithm::CHACHA20));
 }
 
 TEST(symmetricKeyCipher, multipleOperationsWithSameCipher)

@@ -71,6 +71,8 @@ std::string_view toString(AuthSymmetricCipherAlgorithm alg)
       case Alg::AES_256_OCB: return "AES-256-OCB";
       case Alg::AES_256_SIV: return "AES-256-SIV";
 
+      case Alg::CHACHA20_POLY1305: return "ChaCha20-Poly1305";
+
       default: return {};
    }
 }
@@ -123,7 +125,6 @@ std::string_view toString(SymmetricCipherAlgorithm alg)
       case Alg::AES_256_WRAP_PAD_INV: return "AES-256-WRAP-PAD-INV";
 
       case Alg::CHACHA20: return "ChaCha20";
-      case Alg::CHACHA20_POLY1305: return "ChaCha20-Poly1305";
 
       default: return {};
    }
