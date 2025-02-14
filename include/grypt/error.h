@@ -27,7 +27,10 @@ enum class ErrorCode
    DecryptTagNotAllowed,
    KeyGenerationFailure,
    KeyParseFailure,
-   PublicKeyDecryptFailure
+   PublicKeyDecryptFailure,
+   DigestFailure,
+   DigestUpdateNotAllowed,
+   DigestFinalNotAllowed
 };
 
 std::error_code make_error_code(ErrorCode);
