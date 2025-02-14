@@ -70,6 +70,18 @@ struct decoder_ctx_deleter
 };
 using decoder_ctx_ptr = std::unique_ptr<OSSL_DECODER_CTX, decoder_ctx_deleter>;
 
+struct evp_md_deleter
+{
+   void operator()(EVP_MD* obj) { EVP_MD_free(obj); }
+};
+using evp_md_ptr = std::unique_ptr<EVP_MD, evp_md_deleter>;
+
+struct evp_md_ctx_deleter
+{
+   void operator()(EVP_MD_CTX* obj) { EVP_MD_CTX_free(obj); }
+};
+using evp_md_ctx_ptr = std::unique_ptr<EVP_MD_CTX, evp_md_ctx_deleter>;
+
 } // namespace grypt::ossl
 
 #endif
