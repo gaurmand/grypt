@@ -137,6 +137,25 @@ enum class GMACAlgorithm
    AES_256_GCM,
 };
 
+enum class DigitalSignatureAlgorithm
+{
+   DSA,
+   ECDSA,
+   ED25519,
+   ED448,
+   RSA,
+   // ML_DSA (OpenSSL 3.5)
+};
+
+enum class RSAPadding
+{
+   None,
+   PKCS1,
+   OAEP, // encrypt/decrypt only
+   X931, // sign/verify only
+   PSS   // sign/verify only
+};
+
 using Algorithm = std::variant<NullAlgorithm,
                                SymmetricCipherAlgorithm,
                                AuthSymmetricCipherAlgorithm>;
