@@ -1,9 +1,11 @@
 #ifndef GRYPT_TEST_UTIL_H
 #define GRYPT_TEST_UTIL_H
 
+#include <filesystem>
 #include <grypt/algorithm.h>
 #include <grypt/asymmetriccipher.h>
 #include <grypt/bytes.h>
+#include <grypt/digitalsignature.h>
 
 namespace grypt
 {
@@ -49,6 +51,23 @@ inline void PrintTo(const AsymmetricCipher::AlgorithmInfo& info,
    *os << "{" << info.keyLength << ", " << info.maxPlaintextLength << ", "
        << std::boolalpha << info.isPrivateKey << "}";
 }
+
+inline void PrintTo(const DigitalSignature::AlgorithmInfo& info,
+                    std::ostream* os)
+{
+   *os << "{" << info.keyLength << ", " << std::boolalpha << info.isPrivateKey
+       << "}";
+}
+
+namespace literals
+{
+
+inline std::filesystem::path operator""_fp(const char* c, size_t n)
+{
+   return std::filesystem::path{c, c + n};
+}
+
+} // namespace literals
 
 } // namespace grypt
 

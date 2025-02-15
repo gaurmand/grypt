@@ -1,11 +1,13 @@
 add_executable(
    encryption_test
+   data.cpp
    algorithm_test.cpp
    symmetriccipher_test.cpp
    authsymmetriccipher_test.cpp
    asymmetriccipher_test.cpp
    hash_test.cpp
    mac_test.cpp
+   digitalsignature_test.cpp
 )
 
 add_executable(

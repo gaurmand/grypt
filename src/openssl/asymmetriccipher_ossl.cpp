@@ -1,4 +1,5 @@
 #include "osslutil.h"
+#include "pkey_util.h"
 
 #include <algorithm>
 #include <cassert>
@@ -27,59 +28,6 @@ std::expected<ossl::evp_pkey_ptr, Error> generateRSAKey(size_t sizeBits)
    }
 
    return pkey;
-}
-
-std::expected<ossl::evp_pkey_ptr, Error> createRSAKey(BytesView key)
-{
-   EVP_PKEY* pkey = nullptr;
-
-   ossl::decoder_ctx_ptr decoder{OSSL_DECODER_CTX_new_for_pkey(
-      &pkey, nullptr, nullptr, "RSA", 0, nullptr, nullptr)};
-   if (!decoder)
-   {
-      ossl::handleError();
-      return std::unexpected(ErrorCode::KeyParseFailure);
-   }
-
-   auto data = key.udata();
-   auto size = key.size();
-   auto res  = OSSL_DECODER_from_data(decoder.get(), &data, &size);
-   if (res != ERR_LIB_NONE || pkey == nullptr)
-   {
-      ossl::handleError();
-      return std::unexpected(ErrorCode::KeyParseFailure);
-   }
-
-   return ossl::evp_pkey_ptr{pkey};
-}
-
-std::expected<ossl::evp_pkey_ptr, Error> createRSAKey(
-   std::filesystem::path path)
-{
-   auto* fp = std::fopen(path.c_str(), "r");
-   if (!fp)
-   {
-      return std::unexpected(ErrorCode::KeyParseFailure);
-   }
-
-   EVP_PKEY* pkey = nullptr;
-
-   ossl::decoder_ctx_ptr decoder{OSSL_DECODER_CTX_new_for_pkey(
-      &pkey, nullptr, nullptr, "RSA", 0, nullptr, nullptr)};
-   if (!decoder)
-   {
-      ossl::handleError();
-      return std::unexpected(ErrorCode::KeyParseFailure);
-   }
-
-   auto res = OSSL_DECODER_from_fp(decoder.get(), fp);
-   if (res != ERR_LIB_NONE || pkey == nullptr)
-   {
-      ossl::handleError();
-      return std::unexpected(ErrorCode::KeyParseFailure);
-   }
-
-   return ossl::evp_pkey_ptr{pkey};
 }
 
 std::string_view getPaddingMode(AsymmetricCipher::Algorithm alg)
@@ -135,20 +83,6 @@ auto getRSAParameters(AsymmetricCipher::Algorithm alg)
    }
 
    return params;
-}
-
-std::expected<ossl::evp_pkey_ctx_ptr, Error> makeContext(
-   const ossl::evp_pkey_ptr& pkey)
-{
-   ossl::evp_pkey_ctx_ptr ctx{
-      EVP_PKEY_CTX_new_from_pkey(nullptr, pkey.get(), nullptr)};
-   if (ctx == nullptr)
-   {
-      ossl::handleError();
-      return std::unexpected(ErrorCode::InitializeCipherFailed);
-   }
-
-   return ctx;
 }
 
 std::expected<AsymmetricCipher::AlgorithmInfo, Error> getInfo(
@@ -321,7 +255,7 @@ std::expected<AsymmetricCipher, Error> AsymmetricCipher::create(
       return std::unexpected(pkey.error());
    }
 
-   auto ctx = makeContext(pkey.value());
+   auto ctx = ossl::makeContext(pkey.value());
    if (!ctx.has_value())
    {
       return std::unexpected(ctx.error());
@@ -345,13 +279,13 @@ std::expected<AsymmetricCipher, Error> AsymmetricCipher::create(
 std::expected<AsymmetricCipher, Error> AsymmetricCipher::create(
    Algorithm alg, BytesView keyData)
 {
-   auto pkey = createRSAKey(keyData);
+   auto pkey = ossl::makePKeyFromData("RSA", keyData);
    if (!pkey.has_value())
    {
       return std::unexpected(pkey.error());
    }
 
-   auto ctx = makeContext(pkey.value());
+   auto ctx = ossl::makeContext(pkey.value());
    if (!ctx.has_value())
    {
       return std::unexpected(ctx.error());
@@ -375,7 +309,7 @@ std::expected<AsymmetricCipher, Error> AsymmetricCipher::create(
 std::expected<AsymmetricCipher, Error> AsymmetricCipher::create(
    Algorithm alg, const std::filesystem::path& keyFilepath)
 {
-   auto pkey = createRSAKey(keyFilepath);
+   auto pkey = ossl::makePKeyFromFile("RSA", keyFilepath);
    if (!pkey.has_value())
    {
       return std::unexpected(pkey.error());

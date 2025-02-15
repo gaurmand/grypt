@@ -30,12 +30,19 @@ enum class ErrorCode
    KeyGenerationFailure,
    KeyParseFailure,
    PublicKeyDecryptFailure,
+   PublicKeySignFailure,
    DigestFailure,
    DigestUpdateNotAllowed,
    DigestFinalNotAllowed,
    MACFailure,
    MACUpdateNotAllowed,
    MACFinalNotAllowed,
+   DSSignFailed,
+   DSVerifyFailed,
+   SignUpdateNotAllowed,
+   SignFinalNotAllowed,
+   VerifyUpdateNotAllowed,
+   VerifyFinalNotAllowed
 };
 
 std::error_code make_error_code(ErrorCode);
