@@ -10,11 +10,6 @@ using namespace grypt::literals;
 using Alg  = Hash::Algorithm;
 using Info = Hash::AlgorithmInfo;
 
-namespace
-{
-
-}
-
 testing::AssertionResult basicTest(Alg alg)
 {
    auto hash = Hash::create(alg);

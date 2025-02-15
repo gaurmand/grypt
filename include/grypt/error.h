@@ -9,11 +9,13 @@ namespace grypt
 
 enum class ErrorCode
 {
+   InvalidArguments,
    InitializeCipherFailed,
    FetchCipherDataFailed,
    InvalidPlaintextLength,
    InvalidKeyLength,
    InvalidIVLength,
+   InvalidTagLength,
    RandomBytesFailure,
    EncryptionFailure,
    DecryptionFailure,
@@ -30,7 +32,10 @@ enum class ErrorCode
    PublicKeyDecryptFailure,
    DigestFailure,
    DigestUpdateNotAllowed,
-   DigestFinalNotAllowed
+   DigestFinalNotAllowed,
+   MACFailure,
+   MACUpdateNotAllowed,
+   MACFinalNotAllowed,
 };
 
 std::error_code make_error_code(ErrorCode);

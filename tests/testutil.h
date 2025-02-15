@@ -15,7 +15,9 @@ inline const auto kTestKey = Bytes::fromHex(
    "d6fc768153101325fafff8e8a75117bfe936e2313651755efaeeb97");
 
 inline const auto kTestPlaintext = "Sphinx of black quartz, judge my vow"_bv;
-const auto kTestWrapPlaintext    = "This string is a multiple of 8!?"_bv;
+inline const auto kTestPlaintext2 =
+   "The quick brown fox jumps over the lazy dog"_bv;
+const auto kTestWrapPlaintext = "This string is a multiple of 8!?"_bv;
 inline const auto kTestAAD =
    "Non confidential data that must be authenticated"_bv;
 
