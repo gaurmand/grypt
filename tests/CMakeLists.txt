@@ -5,6 +5,7 @@ add_executable(
    authsymmetriccipher_test.cpp
    asymmetriccipher_test.cpp
    hash_test.cpp
+   mac_test.cpp
 )
 
 add_executable(

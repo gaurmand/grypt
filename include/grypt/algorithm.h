@@ -84,6 +84,59 @@ enum class AuthSymmetricCipherAlgorithm
    CHACHA20_POLY1305
 };
 
+enum class HashAlgorithm
+{
+   BLAKE2S_256,
+   BLAKE2B_512,
+   MD5,
+   MD5_SHA1,
+   RIPEMD_160,
+   SHA1,
+   SHA2_224,
+   SHA2_256,
+   SHA2_384,
+   SHA2_512,
+   SHA2_512_224,
+   SHA2_512_256,
+   SHA3_224,
+   SHA3_256,
+   SHA3_384,
+   SHA3_512,
+   SHAKE_128,
+   SHAKE_256,
+   KECCAK_KMAC_128,
+   KECCAK_KMAC_256,
+   SM3
+};
+
+// Note: Poly1305 is complicated to use, will leave out for now.
+enum class MACAlgorithm
+{
+   BLAKE2BMAC,
+   BLAKE2SMAC,
+   CMAC,
+   GMAC,
+   HMAC,
+   KMAC_128,
+   KMAC_256,
+   SIPHASH,
+   // Poly1305
+};
+
+enum class CMACAlgorithm
+{
+   AES_128_CBC,
+   AES_192_CBC,
+   AES_256_CBC,
+};
+
+enum class GMACAlgorithm
+{
+   AES_128_GCM,
+   AES_192_GCM,
+   AES_256_GCM,
+};
+
 using Algorithm = std::variant<NullAlgorithm,
                                SymmetricCipherAlgorithm,
                                AuthSymmetricCipherAlgorithm>;

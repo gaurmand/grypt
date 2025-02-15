@@ -24,6 +24,13 @@ struct make_visitor : Ts...
 namespace grypt::ossl
 {
 
+std::string_view toString(SymmetricCipherAlgorithm alg);
+std::string_view toString(AuthSymmetricCipherAlgorithm alg);
+std::string_view toString(HashAlgorithm alg);
+std::string_view toString(MACAlgorithm alg);
+std::string_view toString(CMACAlgorithm alg);
+std::string_view toString(GMACAlgorithm alg);
+
 // Bad! decltype(lambda) resolves to different types in different translation
 // units. template <typename T, auto Deleter> using unique_ptr =
 // std::unique_ptr<T, decltype([](T* obj) { Deleter(obj); })>;
@@ -81,6 +88,18 @@ struct evp_md_ctx_deleter
    void operator()(EVP_MD_CTX* obj) { EVP_MD_CTX_free(obj); }
 };
 using evp_md_ctx_ptr = std::unique_ptr<EVP_MD_CTX, evp_md_ctx_deleter>;
+
+struct evp_mac_deleter
+{
+   void operator()(EVP_MAC* obj) { EVP_MAC_free(obj); }
+};
+using evp_mac_ptr = std::unique_ptr<EVP_MAC, evp_mac_deleter>;
+
+struct evp_mac_ctx_deleter
+{
+   void operator()(EVP_MAC_CTX* obj) { EVP_MAC_CTX_free(obj); }
+};
+using evp_mac_ctx_ptr = std::unique_ptr<EVP_MAC_CTX, evp_mac_ctx_deleter>;
 
 } // namespace grypt::ossl
 

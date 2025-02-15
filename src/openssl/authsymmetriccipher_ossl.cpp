@@ -218,7 +218,7 @@ struct AuthSymmetricCipher::Data
 
       if (tag.size() < tagLength)
       {
-         return std::unexpected{ErrorCode::InvalidIVLength};
+         return std::unexpected{ErrorCode::InvalidTagLength};
       }
 
       // Sets expected authentication tag

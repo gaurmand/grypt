@@ -43,6 +43,8 @@ Mode toMode(unsigned int modeNum)
    }
 }
 
+} // namespace
+
 // Note: AES_128_CBC_HMAC_SHA1, AES_128_CBC_HMAC_SHA256, AES_256_CBC_HMAC_SHA1,
 // AES_256_CBC_HMAC_SHA256 algorithms are supported but require additional
 // operations to work correctly.
@@ -130,7 +132,91 @@ std::string_view toString(SymmetricCipherAlgorithm alg)
    }
 }
 
-} // namespace
+std::string_view toString(HashAlgorithm alg)
+{
+   using Alg = HashAlgorithm;
+
+   switch (alg)
+   {
+      case Alg::BLAKE2S_256: return "BLAKE2S-256";
+      case Alg::BLAKE2B_512: return "BLAKE2B-512";
+
+      case Alg::MD5: return "MD5";
+      case Alg::MD5_SHA1: return "MD5-SHA1";
+
+      case Alg::RIPEMD_160: return "RIPEMD-160";
+
+      case Alg::SHA1: return "SHA1";
+
+      case Alg::SHA2_224: return "SHA2-224";
+      case Alg::SHA2_256: return "SHA2-256";
+      case Alg::SHA2_384: return "SHA2-384";
+      case Alg::SHA2_512: return "SHA2-512";
+      case Alg::SHA2_512_224: return "SHA2-512/224";
+      case Alg::SHA2_512_256: return "SHA2-512/256";
+
+      case Alg::SHA3_224: return "SHA3-224";
+      case Alg::SHA3_256: return "SHA3-256";
+      case Alg::SHA3_384: return "SHA3-384";
+      case Alg::SHA3_512: return "SHA3-512";
+
+      case Alg::SHAKE_128: return "SHAKE-128";
+      case Alg::SHAKE_256: return "SHAKE-256";
+      case Alg::KECCAK_KMAC_128: return "KECCAK-KMAC-128";
+      case Alg::KECCAK_KMAC_256: return "KECCAK-KMAC-256";
+
+      case Alg::SM3: return "SM3";
+
+      default: return {};
+   }
+}
+
+std::string_view toString(MACAlgorithm alg)
+{
+   using Alg = MACAlgorithm;
+
+   switch (alg)
+   {
+      case Alg::BLAKE2SMAC: return "BLAKE2SMAC";
+      case Alg::BLAKE2BMAC: return "BLAKE2BMAC";
+      case Alg::CMAC: return "CMAC";
+      case Alg::GMAC: return "GMAC";
+      case Alg::HMAC: return "HMAC";
+      case Alg::KMAC_128: return "KMAC-128";
+      case Alg::KMAC_256: return "KMAC-256";
+      case Alg::SIPHASH: return "SIPHASH";
+      // case Alg::Poly1305: return "POLY1305";
+      default: return {};
+   }
+}
+
+std::string_view toString(CMACAlgorithm alg)
+{
+   using Alg  = CMACAlgorithm;
+   using SAlg = SymmetricCipherAlgorithm;
+
+   switch (alg)
+   {
+      case Alg::AES_128_CBC: return toString(SAlg::AES_128_CBC);
+      case Alg::AES_192_CBC: return toString(SAlg::AES_192_CBC);
+      case Alg::AES_256_CBC: return toString(SAlg::AES_256_CBC);
+      default: return {};
+   }
+}
+
+std::string_view toString(GMACAlgorithm alg)
+{
+   using Alg  = GMACAlgorithm;
+   using AAlg = AuthSymmetricCipherAlgorithm;
+
+   switch (alg)
+   {
+      case Alg::AES_128_GCM: return toString(AAlg::AES_128_GCM);
+      case Alg::AES_192_GCM: return toString(AAlg::AES_192_GCM);
+      case Alg::AES_256_GCM: return toString(AAlg::AES_256_GCM);
+      default: return {};
+   }
+}
 
 std::string handleError()
 {

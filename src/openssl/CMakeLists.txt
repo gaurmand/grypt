@@ -7,6 +7,7 @@ ADD_LIBRARY(
    authsymmetriccipher_ossl.cpp
    asymmetriccipher_ossl.cpp
    hash_ossl.cpp
+   mac_ossl.cpp
 )
 
 target_link_libraries(gryptssl ssl crypto gryptutil)

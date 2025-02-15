@@ -12,48 +12,9 @@ namespace grypt
 namespace
 {
 
-std::string_view toString(Hash::Algorithm alg)
-{
-   using Alg = Hash::Algorithm;
-
-   switch (alg)
-   {
-      case Alg::BLAKE2S_256: return "BLAKE2S-256";
-      case Alg::BLAKE2B_512: return "BLAKE2B-512";
-
-      case Alg::MD5: return "MD5";
-      case Alg::MD5_SHA1: return "MD5-SHA1";
-
-      case Alg::RIPEMD_160: return "RIPEMD-160";
-
-      case Alg::SHA1: return "SHA1";
-
-      case Alg::SHA2_224: return "SHA2-224";
-      case Alg::SHA2_256: return "SHA2-256";
-      case Alg::SHA2_384: return "SHA2-384";
-      case Alg::SHA2_512: return "SHA2-512";
-      case Alg::SHA2_512_224: return "SHA2-512/224";
-      case Alg::SHA2_512_256: return "SHA2-512/256";
-
-      case Alg::SHA3_224: return "SHA3-224";
-      case Alg::SHA3_256: return "SHA3-256";
-      case Alg::SHA3_384: return "SHA3-384";
-      case Alg::SHA3_512: return "SHA3-512";
-
-      case Alg::SHAKE_128: return "SHAKE-128";
-      case Alg::SHAKE_256: return "SHAKE-256";
-      case Alg::KECCAK_KMAC_128: return "KECCAK-KMAC-128";
-      case Alg::KECCAK_KMAC_256: return "KECCAK-KMAC-256";
-
-      case Alg::SM3: return "SM3";
-
-      default: return {};
-   }
-}
-
 std::expected<ossl::evp_md_ptr, Error> getMD(Hash::Algorithm alg)
 {
-   auto str = toString(alg);
+   auto str = ossl::toString(alg);
    ossl::evp_md_ptr md{EVP_MD_fetch(nullptr, str.data(), nullptr)};
    if (!md)
    {
@@ -158,6 +119,8 @@ struct Hash::Data
       };
 
       assert(len == digest.size());
+
+      state = State::Uninitialized;
 
       return digest;
    }
